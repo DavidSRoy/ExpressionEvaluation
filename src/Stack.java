@@ -13,14 +13,14 @@ public class Stack {
 	}
 	
 	public void push(char c) {
-		System.out.println(c);
+		//System.out.println(c);
 		
 		stack[++stackTop] = c;
-		System.out.println(stackTop);
+		//System.out.println("StackTop : " + stackTop);
 	}
 	
 	public char pop() {
-		return stack[--stackTop];
+		return stack[stackTop--];
 	}
 	
 	public boolean isEmpty() {

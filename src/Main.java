@@ -1,34 +1,69 @@
+import java.util.HashMap;
 
 public class Main {
+	static String[] statements = { "( 1 + 3 ) * ( 2 - 1)",
+								   "( 2 + 3 } * { 2 - 1 )"};
+	static HashMap<Character, Character> pairs = new HashMap<>();
+	static HashMap<String, String> errors = new HashMap<>(); //CODE = error message
+
 	public static void main(String[] args) {
-		String[] statements = {
-											"( 1 + 3 ) * ( 2 - 1)"
-											};
+		setErrorMessages();
+		setPairs();
+
+
 		
 		for (int i = 0; i < statements.length; i++) {
 			Stack stack = new Stack();
-			
+			System.out.println("Evaluating Statement " + i);
+			System.out.println(statements[i]);
+			System.out.println();
+
 			for (int j = 0; j < statements[i].length(); j++) {
 				char c = statements[i].charAt(j);
-				
+
 				if (c == '(' || c == '{') {
 					stack.push(c);
 				}
-				
+
 				if (c == ')') {
 					char popC = stack.pop();
-					if (popC != '(') {
-						throw new IllegalArgumentException("Parentheses not matching");
+					if (popC != pairs.get(c)) {
+						printError(statements[i], j, "PRNS");
 					}
 				}
-				
+
 				if (c == '}') {
 					char popC = stack.pop();
 					if (popC != '{') {
-						throw new IllegalArgumentException("Brackets not matching");
+						printError(statements[i], j, "BRAC");
 					}
 				}
 			}
 		}
+		
+		System.out.println("Expression Evaluation Stage 1: Complete");
+	}
+
+	public static void setErrorMessages() {
+		errors.put("BRAC", "Syntax Error: Brackets do not match!");
+		errors.put("PRNS", "Syntax Error: Parentheses do not match!");
+	}
+	
+	public static void setPairs() {
+		pairs.put(')', '(');
+		pairs.put('}', '{');
+	}
+
+	public static void printError(String statement, int location, String code) {
+		System.out.println(errors.get(code));
+		System.out.println(statement);
+		for (int i = 0; i < location; i++) {
+			System.out.print(" ");
+		}
+		
+		System.out.println("^");
+		
+		
+		System.out.println();
 	}
 }

@@ -1,26 +1,27 @@
+import java.util.ArrayList;
 
 /**
  * 
  * @author David Roy
  *
  */
-public class Stack {
-	public char[] stack = new char[40];
+public class Stack <T> {
+	ArrayList <T>stack = new ArrayList <T>();
 	private int stackTop;
 	
 	public Stack() {
 		stackTop = -1;
 	}
 	
-	public void push(char c) {
+	public void push(T c) {
 		//System.out.println(c);
-		
-		stack[++stackTop] = c;
+		stack.add(c);
+		stackTop++;
 		//System.out.println("StackTop : " + stackTop);
 	}
 	
-	public char pop() {
-		return stack[stackTop--];
+	public T pop() {
+		return stack.get(stackTop--);
 	}
 	
 	public boolean isEmpty() {

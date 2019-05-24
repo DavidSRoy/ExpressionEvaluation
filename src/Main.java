@@ -13,7 +13,7 @@ public class Main {
 
 		
 		for (int i = 0; i < statements.length; i++) {
-			Stack stack = new Stack();
+			Stack<Character> stack = new Stack<Character>();
 			System.out.println("Evaluating Statement " + i);
 			System.out.println(statements[i]);
 			System.out.println();

@@ -1,26 +1,42 @@
 import java.util.HashMap;
 
 public class Main {
-	static String[] statements = { "( 1 + 3 ) * ( 2 - 1)",
-								   "( 2 + 3 } * { 2 - 1 )"};
+	static String[] statements = { "( 1 + 3)", "( 1 + 3 ) * ( 2 - 1)", "( 2 + 3 } * { 2 - 1 )" };
 	static HashMap<Character, Character> pairs = new HashMap<>();
-	static HashMap<String, String> errors = new HashMap<>(); //CODE = error message
+	static HashMap<String, String> errors = new HashMap<>(); // CODE = error message
 
 	public static void main(String[] args) {
 		setErrorMessages();
 		setPairs();
 
-
-		
 		for (int i = 0; i < statements.length; i++) {
 			Stack<Character> stack = new Stack<Character>();
 			System.out.println("Evaluating Statement " + i);
 			System.out.println(statements[i]);
 			System.out.println();
+			String statement = statements[i];
 
 			for (int j = 0; j < statements[i].length(); j++) {
-				char c = statements[i].charAt(j);
-
+				String s = "";
+				char c = statement.charAt(j);
+				s = s + c;
+				if (c >= '0' && c <= '9') {
+					boolean done = false;
+					while (!done && j < statement.length() - 1) {
+						j++;
+						c = statement.charAt(j);
+						if (c >= '0' && c <= '9') {
+							s = s + c;
+						} else {
+							j--;
+							done = true;
+						}
+					} // end of while
+					int x = Integer.parseInt(s); // convert to integer
+					System.out.println("integer : " + x);
+				} else { // not (c>='0' && c<='9')
+					System.out.println("String : " + s);
+				}
 				if (c == '(' || c == '{') {
 					stack.push(c);
 				}
@@ -39,16 +55,19 @@ public class Main {
 					}
 				}
 			}
+
+
 		}
-		
+
 		System.out.println("Expression Evaluation Stage 1: Complete");
 	}
+
 
 	public static void setErrorMessages() {
 		errors.put("BRAC", "Syntax Error: Brackets do not match!");
 		errors.put("PRNS", "Syntax Error: Parentheses do not match!");
 	}
-	
+
 	public static void setPairs() {
 		pairs.put(')', '(');
 		pairs.put('}', '{');
@@ -60,10 +79,9 @@ public class Main {
 		for (int i = 0; i < location; i++) {
 			System.out.print(" ");
 		}
-		
+
 		System.out.println("^");
-		
-		
+
 		System.out.println();
 	}
 }

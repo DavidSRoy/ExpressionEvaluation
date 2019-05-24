@@ -7,24 +7,24 @@ import java.util.ArrayList;
  */
 public class Stack <T> {
 	ArrayList <T>stack = new ArrayList <T>();
-	private int stackTop;
 	
 	public Stack() {
-		stackTop = -1;
+		
 	}
 	
 	public void push(T c) {
 		//System.out.println(c);
 		stack.add(c);
-		stackTop++;
-		//System.out.println("StackTop : " + stackTop);
 	}
 	
 	public T pop() {
-		return stack.get(stackTop--);
+		if (!isEmpty()) {
+			return stack.remove(stack.size() - 1);
+		}
+		
 	}
 	
 	public boolean isEmpty() {
-		return stackTop < 0;
+		return stack.size() < 0;
 	}
 }

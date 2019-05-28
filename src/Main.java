@@ -1,7 +1,7 @@
 import java.util.HashMap;
 
 public class Main {
-	static String[] statements = { "( 1 + 3)", "( 1 + 3 ) * ( 2 - 1)", "( 2 + 3 } * { 2 - 1 )" };
+	static String[] statements = { "(12+3)", "( 1 + 3 ) * ( 2 - 1)", "( 2 + 3 } * { 2 - 1 )" };
 	static HashMap<Character, Character> pairs = new HashMap<>();
 	static HashMap<String, String> errors = new HashMap<>(); // CODE = error message
 
@@ -32,11 +32,13 @@ public class Main {
 							done = true;
 						}
 					} // end of while
+					c = 0;
 					int x = Integer.parseInt(s); // convert to integer
 					System.out.println("integer : " + x);
 				} else { // not (c>='0' && c<='9')
 					System.out.println("String : " + s);
 				}
+				
 				if (c == '(' || c == '{') {
 					stack.push(c);
 				}

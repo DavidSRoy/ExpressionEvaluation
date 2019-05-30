@@ -1,11 +1,12 @@
 import java.util.HashMap;
 
 public class Main {
-	static String[] statements = { "(12+3)", "( 1 + 3 ) * ( 2 - 1)", "{ 2 + 3 } * (2 - 1 )" };
+	static String[] statements = { "(12+3)", "( 1 + 3 ) * ( 2 - 1)", "{ 2 + 3 } * (2 - 1 )", "(6 * 3) - (24 - 12)" };
 	static HashMap<Character, Character> pairs = new HashMap<>();
 	static HashMap<String, String> errors = new HashMap<>(); // CODE = error message
 	static HashMap<Character, Integer> precedence = new HashMap<Character, Integer>(); // operator precedence map
 	static int j; // character index;
+	public static final boolean DEBUG_MODE = false;
 
 	public static void main(String[] args) {
 		setErrorMessages();
@@ -14,8 +15,13 @@ public class Main {
 		setPairs();
 
 		for (int i = 0; i < statements.length; i++) {
-			stage1(i);
-			stage2(i);
+			System.out.print(statements[i] + " = ");
+			checkSyntax(i);
+			String postfix = convertToPostfix(i);
+			int result = evaluation(postfix);
+			System.out.print(result);
+			System.out.println();
+
 		}
 
 	}
@@ -73,7 +79,9 @@ public class Main {
 		} // end of while
 		c = 0;
 		int x = Integer.parseInt(s); // convert to integer
-		System.out.println("integer : " + x);
+		if (DEBUG_MODE) {
+			System.out.println("integer : " + x);
+		}
 
 		return x;
 	}
@@ -82,12 +90,15 @@ public class Main {
 		return c == '+' || c == '-' || c == '*' || c == '/' || c == '%';
 	}
 
-	public static void stage1(int i) {
+	public static void checkSyntax(int i) {
 
 		Stack<Character> stack = new Stack<Character>();
-		System.out.println("Checking Syntax of Statement " + i);
-		System.out.println(statements[i]);
-		System.out.println();
+		if (DEBUG_MODE) {
+			System.out.println("Checking Syntax of Statement " + i);
+			System.out.println(statements[i]);
+			System.out.println();
+		}
+
 		String statement = statements[i];
 
 		for (j = 0; j < statement.length(); j++) {
@@ -97,7 +108,8 @@ public class Main {
 			if (c >= '0' && c <= '9') {
 				extractOperand(statement);
 			} else { // not (c>='0' && c<='9')
-				System.out.println("String : " + s);
+				if (DEBUG_MODE)
+					System.out.println("String : " + s);
 			}
 
 			if (c == '(' || c == '{') {
@@ -119,15 +131,17 @@ public class Main {
 			}
 		}
 
-		System.out.println("Stage 1: Complete");
+		if (DEBUG_MODE)
+			System.out.println("Stage 1: Complete");
 	}
 
-	public static void stage2(int i) {
+	public static String convertToPostfix(int i) {
 		Stack<Character> stack = new Stack<Character>();
-
-		System.out.println("Converting Infix to PostFix of Statement " + i);
-		System.out.println(statements[i]);
-		System.out.println();
+		if (DEBUG_MODE) {
+			System.out.println("Converting Infix to PostFix of Statement " + i);
+			System.out.println(statements[i]);
+			System.out.println();
+		}
 		String statement = statements[i];
 		String postFix = "";
 
@@ -144,7 +158,7 @@ public class Main {
 
 				if (c == ')' || c == '}') {
 					char x = ' ';
-					//print operands
+					// print operands
 					while (!stack.isEmpty() && x != pairs.get(c)) {
 						x = stack.pop();
 						if (x != pairs.get(c)) {
@@ -167,8 +181,60 @@ public class Main {
 		while (!stack.isEmpty()) {
 			postFix += stack.pop();
 		}
+
+		if (DEBUG_MODE) {
+			System.out.println("Postfix Expression for " + statement);
+			System.out.println(postFix);
+		}
+
+		return (postFix);
+	}
+
+	public static int evaluation(String postfix) {
+		Stack<Integer> stack = new Stack<Integer>();
+
+		for (j = 0; j < postfix.length(); j++) {
+			char c = postfix.charAt(j);
+			if (isOperator(c)) {
+				int num1 = stack.pop();
+				int num2 = stack.pop();
+				int result = evaluate(num1, num2, c);
+				stack.push(result);
+				if (DEBUG_MODE)
+					System.out.println("Result: " + result);
+			} else {
+
+				if (c != ' ') { // ignore spaces
+					int operand = extractOperand(postfix);
+					stack.push(operand);
+				}
+
+			}
+
+		}
 		
-		System.out.println("Postfix Expression for " + statement);
-		System.out.println(postFix);
+		int answer = stack.pop();
+		if (DEBUG_MODE)
+			System.out.println("Final result: " + answer);
+		return answer;
+
+	}
+
+	private static int evaluate(int a, int b, char operator) {
+		switch (operator) {
+		case '+':
+			return b + a;
+		case '-':
+			return b - a;
+		case '/':
+			return b / a;
+		case '*':
+			return b * a;
+		case '%':
+			return b % a;
+		default:
+			throw new IllegalArgumentException("Invalid Operation");
+			// return (Integer) null;
+		}
 	}
 }

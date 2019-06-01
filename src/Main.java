@@ -1,7 +1,8 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Main {
-	static String[] statements = { "(12+3)", "( 1 + 3 ) * ( 2 - 1)", "{ 2 + 3 } * (2 - 1 )", "(6 * 3) - (24 - 12)" };
+	static ArrayList<String> statements = new ArrayList<String>();
 	static HashMap<Character, Character> pairs = new HashMap<>();
 	static HashMap<String, String> errors = new HashMap<>(); // CODE = error message
 	static HashMap<Character, Integer> precedence = new HashMap<Character, Integer>(); // operator precedence map
@@ -14,14 +15,22 @@ public class Main {
 		setPrecedence();
 		setPairs();
 
-		for (int i = 0; i < statements.length; i++) {
-			System.out.print(statements[i] + " = ");
-			checkSyntax(i);
-			String postfix = convertToPostfix(i);
-			int result = evaluation(postfix);
-			System.out.print(result);
-			System.out.println();
-
+		for (int i = 0; i < statements.size(); i++) {
+			System.out.print(statements.get(i) + " = ");
+			boolean isValid = true;
+			
+			try {
+				 isValid = isSyntaxValid(i);
+			} catch (IllegalArgumentException e) {
+				e.getMessage();
+			}
+			
+			if (isValid) {
+				String postfix = convertToPostfix(i);
+				int result = evaluation(postfix);
+				System.out.print(result);
+				System.out.println();
+			}
 		}
 
 	}
@@ -37,7 +46,10 @@ public class Main {
 	}
 
 	private static void setStatements() {
-		// TODO Auto-generated method stub
+		statements.add("( 12+3 +4 + 5)");
+		statements.add("( 1 + 3 ) * ( 2 - 1)");
+		statements.add("{ 2 + 3 } * (2 - 1 )");
+		statements.add("(6 * 3} - (24 - 12)"); 
 
 	}
 
@@ -61,6 +73,9 @@ public class Main {
 		System.out.println("^");
 
 		System.out.println();
+		
+		//throw an exception to prevent evaluation of invalid statements 
+		throw new IllegalArgumentException(errors.get(code));
 	}
 
 	public static int extractOperand(String statement) {
@@ -90,16 +105,16 @@ public class Main {
 		return c == '+' || c == '-' || c == '*' || c == '/' || c == '%';
 	}
 
-	public static void checkSyntax(int i) {
-
+	public static boolean isSyntaxValid(int i) {
+		boolean isValid = true;
 		Stack<Character> stack = new Stack<Character>();
 		if (DEBUG_MODE) {
 			System.out.println("Checking Syntax of Statement " + i);
-			System.out.println(statements[i]);
+			System.out.println(statements.get(i));
 			System.out.println();
 		}
 
-		String statement = statements[i];
+		String statement = statements.get(i);
 
 		for (j = 0; j < statement.length(); j++) {
 			char c = statement.charAt(j);
@@ -119,30 +134,33 @@ public class Main {
 			if (c == ')') {
 				char popC = stack.pop();
 				if (popC != pairs.get(c)) {
-					printError(statements[i], j, "PRNS");
+					printError(statements.get(i), j, "PRNS");
+					isValid = false;
 				}
 			}
 
 			if (c == '}') {
 				char popC = stack.pop();
 				if (popC != '{') {
-					printError(statements[i], j, "BRAC");
+					printError(statements.get(i), j, "BRAC");
+					isValid = false;
 				}
 			}
 		}
 
 		if (DEBUG_MODE)
 			System.out.println("Stage 1: Complete");
+		return isValid;
 	}
 
 	public static String convertToPostfix(int i) {
 		Stack<Character> stack = new Stack<Character>();
 		if (DEBUG_MODE) {
 			System.out.println("Converting Infix to PostFix of Statement " + i);
-			System.out.println(statements[i]);
+			System.out.println(statements.get(i));
 			System.out.println();
 		}
-		String statement = statements[i];
+		String statement = statements.get(i);
 		String postFix = "";
 
 		for (j = 0; j < statement.length(); j++) {

@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 /**
- * 
+ * Last edited @ 03/06/19 19:03
  * @author David Roy
  *
  */
@@ -14,7 +14,6 @@ public class Stack <T> {
 	}
 	
 	public void push(T c) {
-		//System.out.println(c);
 		stack.add(c);
 	}
 	
@@ -23,9 +22,13 @@ public class Stack <T> {
 			return stack.remove(stack.size() - 1);
 		} 
 		return null;
-		
 	}
 	
+	/**
+	 * View the top stack element
+	 * without popping.
+	 * @return The top element
+	 */
 	public T get() {
 		return stack.get(stack.size() - 1);
 	}

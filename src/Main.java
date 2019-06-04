@@ -1,14 +1,19 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
-
+/**
+ * 
+ * @author David Roy
+ * Last edited @ 03/06/19 19:03
+ *
+ */
 public class Main {
 	static ArrayList<String> statements = new ArrayList<String>();
 	static HashMap<Character, Character> pairs = new HashMap<>();
 	static HashMap<String, String> errors = new HashMap<>(); // CODE = error message
 	static HashMap<Character, Integer> precedence = new HashMap<Character, Integer>(); // operator precedence map
 	static int j; // character index;
-	public static final boolean DEBUG_MODE = false;
+	public static final boolean DEBUG_MODE = false; //debugging boolean
 
 	public static void main(String[] args) {
 		setErrorMessages();
@@ -21,6 +26,7 @@ public class Main {
 			System.out.print(statement + " = ");
 			boolean isValid = false;
 			
+			//check if syntax is valid
 			try {
 				 isValid = isSyntaxValid(statement);
 				 if (DEBUG_MODE) {
@@ -30,6 +36,7 @@ public class Main {
 				e.getMessage();
 			}
 			
+			//convert the statement to postfix and evaluate
 			if (isValid) {
 				String postfix = convertToPostfix(statement);
 				int result = evaluation(postfix);
@@ -64,10 +71,8 @@ public class Main {
 		statements.add("( 1 + 3) * {2 - 1) ");
 		statements.add("( 1 + 3 * { 2 – 1 )}");
 		statements.add("( 1 + 3 * ( 2 – 1 )");
-		statements.add("1 + 2 * 3 + 4 * 5 + 6");
-		
-		
-		
+		statements.add("1 + 2 * 3 ^ 4 * 5 + 6");
+		statements.add("2 ^ 4 ^ 2");
 
 	}
 
@@ -84,6 +89,13 @@ public class Main {
 		pairs.put('}', '{');
 	}
 
+	/**
+	 * Print an error message and show where the source
+	 * of the error is.
+	 * @param statement
+	 * @param location  Index of the error
+	 * @param code  Error code
+	 */
 	public static void printError(String statement, int location, String code) {
 		System.out.println(errors.get(code));
 		
@@ -102,6 +114,11 @@ public class Main {
 		throw new IllegalArgumentException(errors.get(code));
 	}
 
+	/**
+	 * Find the operand in the statement at j
+	 * @param statement
+	 * @return The operand at the location of interest (j);
+	 */
 	public static int extractOperand(String statement) {
 		char c = statement.charAt(j);
 		String s = "" + c;
@@ -126,7 +143,7 @@ public class Main {
 	}
 
 	private static boolean isOperator(char c) {
-		return c == '+' || c == '-' || c == '*' || c == '/' || c == '%';
+		return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
 	}
 
 	public static boolean isSyntaxValid(String statement) {
@@ -143,6 +160,8 @@ public class Main {
 			char c = statement.charAt(j);
 
 			String s = "" + c;
+			
+			//if c is a digit...
 			if (c >= '0' && c <= '9') {
 				extractOperand(statement);
 			} else { // not (c>='0' && c<='9')
@@ -150,10 +169,12 @@ public class Main {
 					System.out.println("String : " + s);
 			}
 
+			//push brackets and parentheses
 			if (c == '(' || c == '{') {
 				stack.push(c);
 			}
 
+			//When a parenthesis is found, find the corresponding pair.
 			if (c == ')') {
 				if (stack.isEmpty()) {  //if the stack is empty, there is an extra or missing parentheses
 					printError(statement, j, "MSBR");
@@ -165,6 +186,7 @@ public class Main {
 				}
 			}
 
+			//When a brackets is found, find the corresponding pair.
 			if (c == '}') {
 				if (stack.isEmpty()) {  //if the stack is empty, there is an extra or missing bracket
 					printError(statement, j, "MSBR");
@@ -177,6 +199,7 @@ public class Main {
 			}
 		}
 
+		//if the stack is not empty by the end, there are extra chars remaining.
 		if (!stack.isEmpty()) {
 			String code = "";
 			switch (stack.pop()) {
@@ -193,11 +216,13 @@ public class Main {
 			
 			printError(statement, 0, code);
 		}
+		
 		if (DEBUG_MODE)
 			System.out.println("Stage 1: Complete");
 		return isValid;
 	}
 
+	
 	public static String convertToPostfix(String statement) {
 		Stack<Character> stack = new Stack<Character>();
 		if (DEBUG_MODE) {
@@ -230,6 +255,7 @@ public class Main {
 					}
 				}
 
+				//push operators, pop operators of higher precedence
 				if (isOperator(c)) {
 					while (!stack.isEmpty() && isOperator(stack.get())
 							&& precedence.get(c) <= precedence.get(stack.get())) {
@@ -241,6 +267,7 @@ public class Main {
 			}
 		}
 
+		//pop remaining elements
 		while (!stack.isEmpty()) {
 			postFix += stack.pop();
 		}

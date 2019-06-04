@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class Main {
 	static ArrayList<String> statements = new ArrayList<String>();
@@ -16,19 +17,24 @@ public class Main {
 		setPairs();
 
 		for (int i = 0; i < statements.size(); i++) {
-			System.out.print(statements.get(i) + " = ");
-			boolean isValid = true;
+			String statement = statements.get(i);
+			System.out.print(statement + " = ");
+			boolean isValid = false;
 			
 			try {
-				 isValid = isSyntaxValid(i);
+				 isValid = isSyntaxValid(statement);
+				 if (DEBUG_MODE) {
+					 System.out.println("isValid :" +  isValid);
+				 }
 			} catch (IllegalArgumentException e) {
 				e.getMessage();
 			}
 			
 			if (isValid) {
-				String postfix = convertToPostfix(i);
+				String postfix = convertToPostfix(statement);
 				int result = evaluation(postfix);
 				System.out.print(result);
+				System.out.println();
 				System.out.println();
 			}
 		}
@@ -42,20 +48,35 @@ public class Main {
 		precedence.put('*', 1);
 		precedence.put('/', 1);
 		precedence.put('%', 1);
-
+		precedence.put('^', 2);
 	}
 
 	private static void setStatements() {
 		statements.add("( 12+3 +4 + 5)");
-		statements.add("( 1 + 3 ) * ( 2 - 1)");
-		statements.add("{ 2 + 3 } * (2 - 1 )");
-		statements.add("(6 * 3} - (24 - 12)"); 
+		statements.add("(( 1 + 3 ) * ( 2 - 1)");
+		statements.add("{ 2 + 3 } * ((2 - 1 )");
+		statements.add("(6 * 3) - (24 - 12)}"); 
+		statements.add("(6 * 3} - (24 - 12)}"); 
+		statements.add("{{54 * 3} - {24 - 12)"); 
+		statements.add("( 10 % 4 )");
+		statements.add("10 + 4 - 4 * (3 * 4 ) + { 3 / 4 } - 50*100- (5 +1)");
+		statements.add("1 + 2 * 3 - (42 +5 *2) % 43 / (34 * 43 *5) + 12"); 
+		statements.add("( 1 + 3) * {2 - 1) ");
+		statements.add("( 1 + 3 * { 2 – 1 )}");
+		statements.add("( 1 + 3 * ( 2 – 1 )");
+		statements.add("1 + 2 * 3 + 4 * 5 + 6");
+		
+		
+		
 
 	}
 
 	public static void setErrorMessages() {
 		errors.put("BRAC", "Syntax Error: Brackets do not match!");
 		errors.put("PRNS", "Syntax Error: Parentheses do not match!");
+		errors.put("MSPR", "Syntax Error: Matching parentheses not found!");
+		errors.put("MSBR", "Syntax Error: Matching brackets not found!");
+		
 	}
 
 	public static void setPairs() {
@@ -65,7 +86,10 @@ public class Main {
 
 	public static void printError(String statement, int location, String code) {
 		System.out.println(errors.get(code));
-		System.out.println(statement);
+		
+		if (DEBUG_MODE)
+			System.out.println(statement);
+		
 		for (int i = 0; i < location; i++) {
 			System.out.print(" ");
 		}
@@ -105,16 +129,15 @@ public class Main {
 		return c == '+' || c == '-' || c == '*' || c == '/' || c == '%';
 	}
 
-	public static boolean isSyntaxValid(int i) {
+	public static boolean isSyntaxValid(String statement) {
 		boolean isValid = true;
 		Stack<Character> stack = new Stack<Character>();
 		if (DEBUG_MODE) {
-			System.out.println("Checking Syntax of Statement " + i);
-			System.out.println(statements.get(i));
+			System.out.println("Checking Syntax of Statement ");
+			System.out.println(statement);
 			System.out.println();
 		}
 
-		String statement = statements.get(i);
 
 		for (j = 0; j < statement.length(); j++) {
 			char c = statement.charAt(j);
@@ -132,35 +155,57 @@ public class Main {
 			}
 
 			if (c == ')') {
+				if (stack.isEmpty()) {  //if the stack is empty, there is an extra or missing parentheses
+					printError(statement, j, "MSBR");
+				}
 				char popC = stack.pop();
 				if (popC != pairs.get(c)) {
-					printError(statements.get(i), j, "PRNS");
+					printError(statement, j, "PRNS");
 					isValid = false;
 				}
 			}
 
 			if (c == '}') {
+				if (stack.isEmpty()) {  //if the stack is empty, there is an extra or missing bracket
+					printError(statement, j, "MSBR");
+				}
 				char popC = stack.pop();
 				if (popC != '{') {
-					printError(statements.get(i), j, "BRAC");
+					printError(statement, j, "BRAC");
 					isValid = false;
 				}
 			}
 		}
 
+		if (!stack.isEmpty()) {
+			String code = "";
+			switch (stack.pop()) {
+			case '{' : code = "MSBR";
+				break;
+			case '}' : code = "MSBR";
+				break;
+			case '(' : code = "MSPR";
+				break;
+			case ')' : code = "MSPR";
+				break;
+			default: break;
+			}
+			
+			printError(statement, 0, code);
+		}
 		if (DEBUG_MODE)
 			System.out.println("Stage 1: Complete");
 		return isValid;
 	}
 
-	public static String convertToPostfix(int i) {
+	public static String convertToPostfix(String statement) {
 		Stack<Character> stack = new Stack<Character>();
 		if (DEBUG_MODE) {
-			System.out.println("Converting Infix to PostFix of Statement " + i);
-			System.out.println(statements.get(i));
+			System.out.println("Converting Infix to PostFix of Statement ");
+			System.out.println(statement);
 			System.out.println();
 		}
-		String statement = statements.get(i);
+
 		String postFix = "";
 
 		for (j = 0; j < statement.length(); j++) {
@@ -250,7 +295,10 @@ public class Main {
 			return b * a;
 		case '%':
 			return b % a;
+		case '^':
+			return (int) Math.pow(b, a);
 		default:
+			
 			throw new IllegalArgumentException("Invalid Operation");
 			// return (Integer) null;
 		}

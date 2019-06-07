@@ -4,7 +4,7 @@ import java.util.Scanner;
 /**
  * 
  * @author David Roy
- * Last edited @ 03/06/19 19:03
+ * Last edited @ 06/07/19 09:11
  *
  */
 public class Main {
@@ -21,9 +21,14 @@ public class Main {
 		setPrecedence();
 		setPairs();
 
+		/*
+		 * Check syntax for all statements. For those with
+		 * valid syntax, convert to postfix and evaluate.
+		 */
 		for (int i = 0; i < statements.size(); i++) {
 			String statement = statements.get(i);
-			System.out.print(statement + " = ");
+			System.out.println("Expression " + (i + 1));
+			System.out.println("Infix: " + statement);
 			boolean isValid = false;
 			
 			//check if syntax is valid
@@ -39,8 +44,9 @@ public class Main {
 			//convert the statement to postfix and evaluate
 			if (isValid) {
 				String postfix = convertToPostfix(statement);
+				System.out.println("Postfix: " + postfix);
 				int result = evaluation(postfix);
-				System.out.print(result);
+				System.out.println("Evaluation: " + result);
 				System.out.println();
 				System.out.println();
 			}
@@ -99,13 +105,13 @@ public class Main {
 	public static void printError(String statement, int location, String code) {
 		System.out.println(errors.get(code));
 		
-		if (DEBUG_MODE)
-			System.out.println(statement);
+		
+		System.out.println(statement);
 		
 		for (int i = 0; i < location; i++) {
 			System.out.print(" ");
 		}
-
+		
 		System.out.println("^");
 
 		System.out.println();
@@ -142,10 +148,21 @@ public class Main {
 		return x;
 	}
 
+	/**
+	 * 
+	 * @param c Character of interest
+	 * @return if c is a valid operator
+	 */
 	private static boolean isOperator(char c) {
 		return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
 	}
 
+	/**
+	 * Check the statement to see if it has matching
+	 * parentheses and brackets by using a stack.
+	 * @param statement
+	 * @return If statement has valid syntax.
+	 */
 	public static boolean isSyntaxValid(String statement) {
 		boolean isValid = true;
 		Stack<Character> stack = new Stack<Character>();
@@ -155,13 +172,13 @@ public class Main {
 			System.out.println();
 		}
 
-
+		//iterate through all characters of the statement
 		for (j = 0; j < statement.length(); j++) {
 			char c = statement.charAt(j);
 
 			String s = "" + c;
 			
-			//if c is a digit...
+			//if c is a digit.
 			if (c >= '0' && c <= '9') {
 				extractOperand(statement);
 			} else { // not (c>='0' && c<='9')
@@ -176,8 +193,8 @@ public class Main {
 
 			//When a parenthesis is found, find the corresponding pair.
 			if (c == ')') {
-				if (stack.isEmpty()) {  //if the stack is empty, there is an extra or missing parentheses
-					printError(statement, j, "MSBR");
+				if (stack.isEmpty()) {  //if the stack is empty, there is an extra or missing parenthesis
+					printError(statement, j, "MSPR");
 				}
 				char popC = stack.pop();
 				if (popC != pairs.get(c)) {
@@ -280,11 +297,21 @@ public class Main {
 		return (postFix);
 	}
 
+	/**
+	 * 
+	 * @param postfix
+	 * @return The evaluation of the postfix expression
+	 */
 	public static int evaluation(String postfix) {
 		Stack<Integer> stack = new Stack<Integer>();
 
 		for (j = 0; j < postfix.length(); j++) {
 			char c = postfix.charAt(j);
+			
+			/*
+			 * When an operator (+, -, etc) is found, pop the top
+			 * two stack elements and evaluate them.
+			 */
 			if (isOperator(c)) {
 				int num1 = stack.pop();
 				int num2 = stack.pop();
@@ -309,7 +336,14 @@ public class Main {
 		return answer;
 
 	}
-
+	
+	/**
+	 * Evaluate the operation of b and a.
+	 * @param a
+	 * @param b
+	 * @param operator
+	 * @return (b (+, -, etc) a)
+	 */
 	private static int evaluate(int a, int b, char operator) {
 		switch (operator) {
 		case '+':
@@ -325,9 +359,7 @@ public class Main {
 		case '^':
 			return (int) Math.pow(b, a);
 		default:
-			
 			throw new IllegalArgumentException("Invalid Operation");
-			// return (Integer) null;
 		}
 	}
 }

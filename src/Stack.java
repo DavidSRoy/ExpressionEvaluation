@@ -1,22 +1,26 @@
 import java.util.ArrayList;
 
 /**
- * Last edited @ 03/06/19 19:03
  * @author David Roy
+ * Last edited @ 06/07/19 09:15
  *
  */
 public class Stack <T> {
 	ArrayList <T>stack = new ArrayList <T>();
-	private int size;
-	
-	public Stack() {
-		size = 0;
-	}
-	
+
+	/**
+	 * Add an element to the top of the stack
+	 * @param c
+	 */
 	public void push(T c) {
 		stack.add(c);
 	}
 	
+	/**
+	 * Remove and return the top
+	 * element of the stack.
+	 * @return The top element of the stack
+	 */
 	public T pop() {
 		if (!isEmpty()) {
 			return stack.remove(stack.size() - 1);
@@ -33,15 +37,26 @@ public class Stack <T> {
 		return stack.get(stack.size() - 1);
 	}
 	
+	/**
+	 * 
+	 * @return Is the stack is empty?
+	 */
 	public boolean isEmpty() {
-		return stack.size() <= 0;
+		return this.size() <= 0;
 	}
 	
+	/**
+	 * Clear the stack
+	 */
 	public void clear() {
 		stack.clear();
 	}
 	
+	/**
+	 * 
+	 * @return Size of the stack
+	 */
 	public int size() {
-		return this.size;
+		return stack.size();
 	}
 }
